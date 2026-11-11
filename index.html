@@ -68,7 +68,7 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
 <span>🔵 &lt;95% ή επιβεβαιωμένη μεταβολή → κάθε 30″</span><br>
 <span>☀️ Ο ηλιακός ακολουθεί τη δεξαμενή · Η σελίδα ελέγχει για νέα δεδομένα κάθε 30″</span></span></div>
 <section class="card chart-card"><div class="chart-head"><h2>📈 Ιστορικό μετρήσεων</h2><label class="small">Γράφημα: <select id="field"><option value="field1">Στάθμη (%)</option><option value="field2">Λίτρα (L)</option><option value="field4">Θερμοκρασία (°C)</option><option value="field3">Απόσταση (cm)</option><option value="field5">Wi-Fi (dBm)</option></select></label><label class="small">Μετρήσεις: <select id="count"><option value="100">100</option><option value="300">300</option><option value="500">500</option><option value="1000">1.000</option></select></label></div><div class="chart-wrap"><canvas id="chart" aria-label="Γράφημα ιστορικού" role="img"></canvas></div><div class="small" id="chartInfo">Φόρτωση ιστορικού...</div></section>
-<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V9 (Firebase setup) · Powered by ThingSpeak</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
+<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V11 (relay sync) · Powered by ThingSpeak</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
 </main><script>
 'use strict';
 const CHANNEL_ID='3568951';const apiUrl=()=>`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=${$('count').value}`;
@@ -107,24 +107,39 @@ const config={
 };
 const app=initializeApp(config),auth=getAuth(app),db=getDatabase(app);
 const el=id=>document.getElementById(id);
-let unsubscribe=null, loggedIn=false, sending=false;
-const message=t=>el('pumpMessage').textContent=t;
+let unsubscribe=null, loggedIn=false, sending=false, latestPumpStatus=null;
+const message=t=>{const node=el('pumpMessage');node.textContent=t;node.hidden=!(/Αποτυχία|απέτυχε|Δεν επιτρέπεται/.test(t));};
 function buttons(){el('pumpOn').disabled=!loggedIn||sending;el('pumpOff').disabled=!loggedIn||sending;}
-function statusUnknown(){el('pumpState').textContent='Κατάσταση μη διαθέσιμη';el('pumpState').className='pump-state-name pump-unknown';el('pumpConnection').textContent='Χωρίς αναφορά ESP32';}
+function statusUnknown(){
+ el('pumpState').textContent='Μη διαθέσιμο';
+ el('pumpState').className='pump-state-name pump-unknown';
+ el('pumpConnection').textContent='Χωρίς πρόσφατη αναφορά ESP32';
+}
+function renderPumpStatus(){
+ const v=latestPumpStatus;
+ if(!loggedIn||!v||typeof v.on!=='boolean'){statusUnknown();return;}
+ const age=typeof v.updatedAt==='number'?Date.now()-v.updatedAt:Infinity;
+ // Slow mode is explicitly reported by the ESP32; never infer relay state from tank %.
+ // 90s for 30s uploads; 40min for 30min uploads (including a margin).
+ const timeout=v.slowMode===true?40*60*1000:90*1000;
+ // Keep the last device-confirmed relay state visible even if its report is old.
+ // Freshness is shown separately; never infer a new ON/OFF state from the tank level.
+ el('pumpState').textContent=v.on?'Ρελέ ON':'Ρελέ OFF';
+ el('pumpState').className='pump-state-name '+(v.on?'pump-on':'pump-off');
+ const fresh=Number.isFinite(age)&&age>=-10000&&age<=timeout;
+ el('pumpConnection').textContent=fresh?'Αναφορά ESP32':'Τελευταία γνωστή κατάσταση · χωρίς πρόσφατη επιβεβαίωση';
+}
+setInterval(renderPumpStatus,10000);
 el('pumpSignIn').onclick=async()=>{try{el('pumpSignIn').disabled=true;message('Σύνδεση...');await signInWithEmailAndPassword(auth,el('pumpEmail').value.trim(),el('pumpPassword').value);el('pumpPassword').value='';message('Συνδέθηκες επιτυχώς.');}catch(e){message('Αποτυχία σύνδεσης. Έλεγξε email, κωδικό και δικαιώματα.');}finally{el('pumpSignIn').disabled=false;}};
 el('pumpSignOut').onclick=()=>signOut(auth).catch(()=>message('Αποτυχία αποσύνδεσης.'));
 onAuthStateChanged(auth,user=>{
  if(unsubscribe){unsubscribe();unsubscribe=null;}
- loggedIn=!!user;el('pumpLogin').hidden=!!user;el('pumpSignedIn').hidden=!user;el('pumpUser').textContent=user?.email||'';buttons();statusUnknown();
+ loggedIn=!!user;el('pumpLogin').hidden=!!user;el('pumpSignedIn').hidden=!user;el('pumpUser').textContent=user?.email||'';buttons();latestPumpStatus=null;statusUnknown();
  if(!user){el('pumpConnection').textContent='Απαιτείται σύνδεση';message('Συνδέσου για να στείλεις εντολές.');return;}
  unsubscribe=onValue(ref(db,'pump/status'),snap=>{
-  const v=snap.val();if(!v||typeof v.on!=='boolean'){statusUnknown();return;}
-  const age=typeof v.updatedAt==='number'?Date.now()-v.updatedAt:Infinity;
-  if(age<0||age>20000){statusUnknown();el('pumpConnection').textContent='Παλαιά αναφορά ESP32';return;}
-  el('pumpState').textContent=v.on?'Ρελέ ON':'Ρελέ OFF';
-  el('pumpState').className='pump-state-name '+(v.on?'pump-on':'pump-off');
-  el('pumpConnection').textContent='Αναφορά ESP32';
- },()=>{statusUnknown();message('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
+  latestPumpStatus=snap.val();
+  renderPumpStatus();
+ },()=>{if(latestPumpStatus&&typeof latestPumpStatus.on==='boolean'){renderPumpStatus();el('pumpConnection').textContent='Τελευταία γνωστή κατάσταση · σφάλμα σύνδεσης Firebase';}else{statusUnknown();}message('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
 });
 async function sendCommand(on){
  if(!auth.currentUser||sending)return;
