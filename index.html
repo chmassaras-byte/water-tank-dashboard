@@ -35,6 +35,17 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
 .pump-card{margin-top:20px}.pump-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.pump-head h2{margin:0}.pump-state{display:flex;gap:14px;align-items:center;margin:18px 0}.pump-state-symbol{font-size:34px}.pump-state-name{font-size:24px;font-weight:800}.pump-state-note{color:var(--muted);font-size:13px;margin-top:4px}.pump-tag{border:1px solid var(--line);border-radius:30px;padding:7px 13px;color:var(--muted);font-size:12px}.pump-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pump-actions button{padding:14px;font-weight:700}.pump-actions button:disabled{opacity:.42;cursor:not-allowed}.pump-warning{color:#b6c8d8;font-size:12px;margin:14px 0 0;line-height:1.5}
 
 .pump-login{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}.pump-login input{background:#10253c;color:#f4fbff;border:1px solid #3a607a;border-radius:10px;padding:11px;min-width:170px;flex:1}.pump-login button{white-space:nowrap}.pump-login[hidden]{display:none}.pump-msg{color:#b4d5e7;font-size:12px;min-height:18px}.pump-user{font-size:12px;color:#92abc4;overflow-wrap:anywhere}.pump-tag{max-width:100%;white-space:normal}
+
+/* Pump status colors: based on ESP32 device report, never merely a sent command. */
+.pump-state-name.pump-on{color:#40dfaa;text-shadow:0 0 16px #40dfaa28}
+.pump-state-name.pump-off{color:#ff7c84;text-shadow:0 0 16px #ff7c8428}
+.pump-state-name.pump-unknown{color:#9cb4c8}
+.pump-actions #pumpOn:not(:disabled){border-color:#25855f;background:#164f3c;color:#a8ffda}
+.pump-actions #pumpOff:not(:disabled){border-color:#a94c54;background:#54232e;color:#ffd3d6}
+.pump-actions #pumpOn:not(:disabled):hover{background:#1d674d}
+.pump-actions #pumpOff:not(:disabled):hover{background:#71303d}
+.pump-msg[hidden]{display:none}
+
 </style>
 </head>
 <body><main class="wrap">
@@ -47,8 +58,7 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
   <div class="pump-login" id="pumpSignedIn" hidden><span class="pump-user" id="pumpUser"></span><button type="button" id="pumpSignOut">Αποσύνδεση</button></div>
   <div class="pump-state"><span class="pump-state-symbol" aria-hidden="true">⏻</span><div><div class="pump-state-name" id="pumpState">Κατάσταση μη διαθέσιμη</div><div class="pump-state-note">Κατάσταση εντολής ρελέ ESP32-C6 · GPIO12</div></div></div>
   <div class="pump-actions"><button type="button" id="pumpOn" disabled title="Απαιτείται ασφαλής σύνδεση">● Ενεργοποίηση</button><button type="button" id="pumpOff" disabled title="Απαιτείται ασφαλής σύνδεση">○ Απενεργοποίηση</button></div>
-  <p class="pump-msg" id="pumpMessage" role="status">Συνδέσου για να στείλεις εντολές.</p>
-  <p class="pump-warning">Η εντολή αποθηκεύεται στο Firebase, αλλά δεν εκτελείται από το ESP32 μέχρι να εγκαταστήσουμε τον αντίστοιχο κώδικα. Η ένδειξη ON/OFF θα βασίζεται σε ξεχωριστή αναφορά της συσκευής και όχι στην εντολή. Χωρίς φορτίο μέχρι να ολοκληρωθούν οι δοκιμές.</p>
+  <p class="pump-msg" id="pumpMessage" role="status" hidden></p>
 </section>
 <section class="card metrics-card"><article class="card"><h2>◉ Τρέχουσες μετρήσεις</h2><div class="metrics"><div class="metric"><div class="label">🌡️ Θερμοκρασία</div><div class="value" id="temp">-- °C</div></div><div class="metric"><div class="label">📏 Απόσταση</div><div class="value" id="distance">-- cm</div></div><div class="metric"><div class="label">📶 Σήμα Wi-Fi</div><div class="value" id="rssi">-- dBm</div></div><div class="metric"><div class="label">💧 Νερό</div><div class="value" id="liters">-- L</div></div></div><p class="small" style="margin-top:18px">Τελευταία μέτρηση: <strong id="updated">—</strong></p><button id="refresh" type="button">↻ Ανανέωση τώρα</button><div id="error" class="error" role="status"></div></article></section>
 
@@ -100,7 +110,7 @@ const el=id=>document.getElementById(id);
 let unsubscribe=null, loggedIn=false, sending=false;
 const message=t=>el('pumpMessage').textContent=t;
 function buttons(){el('pumpOn').disabled=!loggedIn||sending;el('pumpOff').disabled=!loggedIn||sending;}
-function statusUnknown(){el('pumpState').textContent='Κατάσταση μη διαθέσιμη';el('pumpConnection').textContent='Χωρίς αναφορά ESP32';}
+function statusUnknown(){el('pumpState').textContent='Κατάσταση μη διαθέσιμη';el('pumpState').className='pump-state-name pump-unknown';el('pumpConnection').textContent='Χωρίς αναφορά ESP32';}
 el('pumpSignIn').onclick=async()=>{try{el('pumpSignIn').disabled=true;message('Σύνδεση...');await signInWithEmailAndPassword(auth,el('pumpEmail').value.trim(),el('pumpPassword').value);el('pumpPassword').value='';message('Συνδέθηκες επιτυχώς.');}catch(e){message('Αποτυχία σύνδεσης. Έλεγξε email, κωδικό και δικαιώματα.');}finally{el('pumpSignIn').disabled=false;}};
 el('pumpSignOut').onclick=()=>signOut(auth).catch(()=>message('Αποτυχία αποσύνδεσης.'));
 onAuthStateChanged(auth,user=>{
@@ -112,12 +122,12 @@ onAuthStateChanged(auth,user=>{
   const age=typeof v.updatedAt==='number'?Date.now()-v.updatedAt:Infinity;
   if(age<0||age>20000){statusUnknown();el('pumpConnection').textContent='Παλαιά αναφορά ESP32';return;}
   el('pumpState').textContent=v.on?'Ρελέ ON':'Ρελέ OFF';
+  el('pumpState').className='pump-state-name '+(v.on?'pump-on':'pump-off');
   el('pumpConnection').textContent='Αναφορά ESP32';
  },()=>{statusUnknown();message('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
 });
 async function sendCommand(on){
  if(!auth.currentUser||sending)return;
- if(on&&!confirm('Να σταλεί εντολή ON; Η συσκευή δεν είναι ακόμη συνδεδεμένη στο Firebase.'))return;
  sending=true;buttons();message('Αποστολή εντολής...');
  try{await set(ref(db,'pump/command'),{on,issuedAt:serverTimestamp(),nonce:crypto.randomUUID()});message('Η εντολή '+(on?'ON':'OFF')+' αποθηκεύτηκε στο Firebase. Δεν έχει επιβεβαιωθεί εκτέλεση.');}
  catch(e){message('Η εντολή απέτυχε: έλεγξε τους κανόνες πρόσβασης Firebase.');}
