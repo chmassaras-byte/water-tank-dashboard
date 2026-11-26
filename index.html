@@ -75,12 +75,12 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
 <section class="card metrics-card"><article class="card"><h2>◉ Τρέχουσες μετρήσεις</h2><div class="metrics"><div class="metric"><div class="label">🌡️ Θερμοκρασία</div><div class="value" id="temp">-- °C</div></div><div class="metric"><div class="label">📏 Απόσταση</div><div class="value" id="distance">-- cm</div></div><div class="metric"><div class="label">📶 Σήμα Wi-Fi</div><div class="value" id="rssi">-- dBm</div></div><div class="metric"><div class="label">💧 Νερό</div><div class="value" id="liters">-- L</div></div></div><p class="small" style="margin-top:18px">Τελευταία μέτρηση: <strong id="updated">—</strong></p><button id="refresh" type="button">↻ Ανανέωση τώρα</button><div id="error" class="error" role="status"></div></article></section>
 
 
-<div class="hero-note"><span>✦</span><span><strong>SMART IoT · Κανόνας V26</strong><br>
+<div class="hero-note"><span>✦</span><span><strong>SMART IoT · Κανόνας V25</strong><br>
 <span>🟢 95–100% &amp; σταθερή για 2′ → αποστολή κάθε 30′</span><br>
 <span>🔵 &lt;95% ή επιβεβαιωμένη μεταβολή → κάθε 30″</span><br>
 <span>☀️ Ο ηλιακός ακολουθεί τη δεξαμενή · Η σελίδα ελέγχει για νέα δεδομένα κάθε 30″</span></span></div>
 <section class="card chart-card"><div class="chart-head"><h2>📈 Ιστορικό μετρήσεων</h2><label class="small">Γράφημα: <select id="field"><option value="field1">Στάθμη (%)</option><option value="field2">Λίτρα (L)</option><option value="field4">Θερμοκρασία (°C)</option><option value="field3">Απόσταση (cm)</option><option value="field5">Wi-Fi (dBm)</option></select></label><label class="small">Μετρήσεις: <select id="count"><option value="100">100</option><option value="300">300</option><option value="500">500</option><option value="1000">1.000</option></select></label></div><div class="chart-wrap"><canvas id="chart" aria-label="Γράφημα ιστορικού" role="img"></canvas></div><div class="small" id="chartInfo">Φόρτωση ιστορικού...</div></section>
-<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V12 (dual relay) · Powered by ThingSpeak</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
+<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V25</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
 </main><script>
 'use strict';
 const CHANNEL_ID='3568951';const apiUrl=()=>`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=${$('count').value}`;
