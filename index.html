@@ -47,6 +47,13 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
 .pump-msg[hidden]{display:none}
 
 .relay-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.relay-unit{border:1px solid var(--line);border-radius:17px;padding:16px;background:var(--panel2)}.relay-unit .pump-tag{display:block;margin-top:8px}.pump-actions #valveOn:not(:disabled){border-color:#25855f;background:#164f3c;color:#a8ffda}.pump-actions #valveOff:not(:disabled){border-color:#a94c54;background:#54232e;color:#ffd3d6}@media(max-width:600px){.relay-grid{grid-template-columns:1fr}}
+
+/* Relay buttons: highlight only the latest fresh device report. */
+.pump-actions button:is(#pumpOn,#pumpOff,#valveOn,#valveOff):not(:disabled){background:#19332e;color:#a0bcb2;border-color:#34584b;box-shadow:none}
+.pump-actions button[id$="Off"]:not(:disabled){background:#30232c;color:#c5a0a5;border-color:#65434b}
+.pump-actions button:is(#pumpOn,#pumpOff,#valveOn,#valveOff).relay-selected[id$="On"]:not(:disabled){background:#168a43;color:#fff;border-color:#40dfaa;box-shadow:0 0 16px #40dfaa35}
+.pump-actions button:is(#pumpOn,#pumpOff,#valveOn,#valveOff).relay-selected[id$="Off"]:not(:disabled){background:#c62836;color:#fff;border-color:#ff7c84;box-shadow:0 0 16px #ff7c8435}
+.pump-actions button:is(#pumpOn,#pumpOff,#valveOn,#valveOff):not(:disabled):hover{filter:brightness(1.15)}
 </style>
 </head>
 <body><main class="wrap">
@@ -115,7 +122,15 @@ const el=id=>document.getElementById(id);
 let unsubscribe=null, loggedIn=false, sending=false, latestPumpStatus=null;
 const message=t=>{const node=el('pumpMessage');node.textContent=t;node.hidden=!(/Αποτυχία|απέτυχε|Δεν επιτρέπεται/.test(t));};
 function buttons(){el('pumpOn').disabled=!loggedIn||sending;el('pumpOff').disabled=!loggedIn||sending;}
+function highlightRelay(prefix,on){
+ for(const [suffix,active] of [['On',on===true],['Off',on===false]]){
+  const button=el(prefix+suffix);
+  button.classList.toggle('relay-selected',active);
+  button.setAttribute('aria-pressed',String(active));
+ }
+}
 function statusUnknown(){
+ highlightRelay('pump',null);
  el('pumpState').textContent='Μη διαθέσιμο';
  el('pumpState').className='pump-state-name pump-unknown';
  el('pumpConnection').textContent='Χωρίς πρόσφατη αναφορά ESP32';
@@ -132,6 +147,7 @@ function renderPumpStatus(){
  el('pumpState').textContent=v.on?'Ρελέ ON':'Ρελέ OFF';
  el('pumpState').className='pump-state-name '+(v.on?'pump-on':'pump-off');
  const fresh=Number.isFinite(age)&&age>=-10000&&age<=timeout;
+ highlightRelay('pump',fresh?v.on:null);
  el('pumpConnection').textContent=fresh?'Αναφορά ESP32':'Τελευταία γνωστή κατάσταση · χωρίς πρόσφατη επιβεβαίωση';
 }
 setInterval(renderPumpStatus,10000);
@@ -144,7 +160,7 @@ onAuthStateChanged(auth,user=>{
  unsubscribe=onValue(ref(db,'pump/status'),snap=>{
   latestPumpStatus=snap.val();
   renderPumpStatus();
- },()=>{if(latestPumpStatus&&typeof latestPumpStatus.on==='boolean'){renderPumpStatus();el('pumpConnection').textContent='Τελευταία γνωστή κατάσταση · σφάλμα σύνδεσης Firebase';}else{statusUnknown();}message('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
+ },()=>{if(latestPumpStatus&&typeof latestPumpStatus.on==='boolean'){renderPumpStatus();highlightRelay('pump',null);el('pumpConnection').textContent='Τελευταία γνωστή κατάσταση · σφάλμα σύνδεσης Firebase';}else{statusUnknown();}message('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
 });
 async function sendCommand(on){
  if(!auth.currentUser||sending)return;
@@ -159,6 +175,7 @@ let valveUnsubscribe=null, valveLoggedIn=false, valveSending=false, latestValveS
 const valveMessage=t=>{const node=el('valveMessage');node.textContent=t;node.hidden=!(/Αποτυχία|απέτυχε|Δεν επιτρέπεται/.test(t));};
 function valveButtons(){el('valveOn').disabled=!valveLoggedIn||valveSending;el('valveOff').disabled=!valveLoggedIn||valveSending;}
 function valveStatusUnknown(){
+ highlightRelay('valve',null);
  el('valveState').textContent='Μη διαθέσιμο';
  el('valveState').className='pump-state-name pump-unknown';
  el('valveConnection').textContent='Χωρίς πρόσφατη αναφορά ESP32';
@@ -175,6 +192,7 @@ function renderValveStatus(){
  el('valveState').textContent=v.on?'Ρελέ ON':'Ρελέ OFF';
  el('valveState').className='pump-state-name '+(v.on?'pump-on':'pump-off');
  const fresh=Number.isFinite(age)&&age>=-10000&&age<=timeout;
+ highlightRelay('valve',fresh?v.on:null);
  el('valveConnection').textContent=fresh?'Αναφορά ESP32':'Τελευταία γνωστή κατάσταση · χωρίς πρόσφατη επιβεβαίωση';
 }
 setInterval(renderValveStatus,10000);
@@ -185,7 +203,7 @@ onAuthStateChanged(auth,user=>{
  valveUnsubscribe=onValue(ref(db,'valve/status'),snap=>{
   latestValveStatus=snap.val();
   renderValveStatus();
- },()=>{if(latestValveStatus&&typeof latestValveStatus.on==='boolean'){renderValveStatus();el('valveConnection').textContent='Τελευταία γνωστή κατάσταση · σφάλμα σύνδεσης Firebase';}else{valveStatusUnknown();}valveMessage('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
+ },()=>{if(latestValveStatus&&typeof latestValveStatus.on==='boolean'){renderValveStatus();highlightRelay('valve',null);el('valveConnection').textContent='Τελευταία γνωστή κατάσταση · σφάλμα σύνδεσης Firebase';}else{valveStatusUnknown();}valveMessage('Δεν επιτρέπεται η ανάγνωση κατάστασης από τους κανόνες Firebase.');});
 });
 async function sendValveCommand(on){
  if(!auth.currentUser||valveSending)return;
