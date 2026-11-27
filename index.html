@@ -57,30 +57,41 @@ body{background:radial-gradient(ellipse 900px 550px at 15% -10%,#173d59 0%,trans
 </style>
 </head>
 <body><main class="wrap">
-<header class="top"><div><div class="eyebrow">MASSARAS IoT</div><h1>Μέτρηση δεξαμενής και θερμοκρασίας ηλιακού</h1><div class="sub">Απομακρυσμένη Παρακολούθηση — Δροσιά Τριταίας Project</div></div><div class="pill"><span class="dot" id="dot"></span><span id="connection">Φόρτωση...</span></div></header>
+<header class="top"><div><div class="eyebrow">MASSARAS IoT</div><h1>Μέτρηση δεξαμενής και θερμοκρασίας ηλιακού 💧☀️</h1><div class="sub">Απομακρυσμένη Παρακολούθηση — Δροσιά Τριταίας Project</div></div><div class="pill"><span class="dot" id="dot"></span><span id="connection">Φόρτωση...</span></div></header>
 <section class="layout"><article class="card tank-card"><h2>💧 Στάθμη δεξαμενής</h2><svg class="tank-svg" viewBox="0 0 310 290" role="img" aria-label="Απεικόνιση στάθμης νερού"><defs><linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54dfff"/><stop offset="1" stop-color="#136ecb"/></linearGradient><clipPath id="tankClip"><rect x="66" y="16" width="178" height="244" rx="28"/></clipPath></defs><rect x="66" y="16" width="178" height="244" rx="28" fill="#1d3b51" stroke="#83b2cb" stroke-width="3"/><g clip-path="url(#tankClip)"><rect id="waterFill" x="67" y="259" width="176" height="0" fill="url(#water)"/><path id="wave" d="" stroke="#b3f3ff" stroke-width="3" fill="none"/></g><text id="percentSvg" x="155" y="135" class="tank-number" text-anchor="middle">--%</text><text id="litersSvg" x="155" y="162" class="tank-volume" text-anchor="middle">-- L</text><g stroke="#7a9bb0" stroke-width="2"><path d="M251 31h12 M251 85h12 M251 139h12 M251 193h12 M251 248h12"/></g></svg><div id="tankStatus" class="tank-status">Αναμονή δεδομένων</div><div class="small">5.000 λτρ</div></article>
 <article class="card solar-vessel-card"><h2>☀️ Ηλιακός θερμοσίφωνας</h2><svg class="solar-vessel" viewBox="0 0 340 290" role="img" aria-label="Οριζόντιο δοχείο ηλιακού θερμοσίφωνα, θερμοκρασία από 5 έως 95 βαθμούς"><defs><linearGradient id="solarHeat" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#32b8e9"/><stop offset=".45" stop-color="#4fe0b4"/><stop offset=".72" stop-color="#ffce69"/><stop offset="1" stop-color="#ff7255"/></linearGradient><clipPath id="solarClip"><rect x="26" y="70" width="288" height="142" rx="70"/></clipPath></defs><rect x="54" y="210" width="24" height="17" rx="5" fill="#50718b"/><rect x="262" y="210" width="24" height="17" rx="5" fill="#50718b"/><rect x="26" y="70" width="288" height="142" rx="70" fill="#18354b" stroke="#83aabd" stroke-width="4"/><g clip-path="url(#solarClip)"><rect id="solarBarrelFill" x="26" y="70" width="0" height="142" fill="url(#solarHeat)"/><path d="M40 95 Q170 65 300 95" stroke="#fff" stroke-opacity=".12" stroke-width="9" fill="none"/></g><rect x="26" y="70" width="288" height="142" rx="70" fill="none" stroke="#83aabd" stroke-width="4"/><text id="solarValue" x="170" y="147" text-anchor="middle" class="solar-vessel-value">-- °C</text><text x="170" y="174" text-anchor="middle" class="solar-vessel-caption">ΘΕΡΜΟΚΡΑΣΙΑ ΝΕΡΟΥ</text><text x="26" y="252" class="solar-end-label">5°C</text><text x="314" y="252" text-anchor="end" class="solar-end-label">95°C</text></svg><div id="solarStatus" class="tank-status">Αναμονή δεδομένων</div><div class="small">Επιθυμητή θερμοκρασία &gt;45°C</div></article></section>
 <section class="card pump-card" aria-labelledby="pumpHeading">
   <div class="pump-head"><h2 id="pumpHeading">⚙️ Έλεγχος Αντλίας και Βάνας</h2></div>
   <div class="pump-login" id="pumpLogin"><input id="pumpEmail" type="email" placeholder="Email Firebase" autocomplete="username"><input id="pumpPassword" type="password" placeholder="Κωδικός" autocomplete="current-password"><button type="button" id="pumpSignIn">Σύνδεση</button></div>
   <div class="pump-login" id="pumpSignedIn" hidden><span class="pump-user" id="pumpUser"></span><button type="button" id="pumpSignOut">Αποσύνδεση</button></div>
-<div class="relay-grid"><article class="relay-unit"><h3>Αντλία</h3><span class="pump-tag" id="pumpConnection">Αναμονή σύνδεσης</span>  <div class="pump-state"><span class="pump-state-symbol" aria-hidden="true">⏻</span><div><div class="pump-state-name" id="pumpState">Κατάσταση μη διαθέσιμη</div><div class="pump-state-note">Κατάσταση ρελέ ESP32-C6 · GPIO12</div></div></div>
+<div class="relay-grid"><article class="relay-unit"><h3>Αντλία</h3><span class="pump-tag" id="pumpConnection">Αναμονή σύνδεσης</span>  <div class="pump-state"><span class="pump-state-symbol" aria-hidden="true">⏻</span><div><div class="pump-state-name" id="pumpState">Κατάσταση μη διαθέσιμη</div><div class="pump-state-note">Κατάσταση ρελέ ESP32-C6 · GPIO18</div></div></div>
   <div class="pump-actions"><button type="button" id="pumpOn" disabled title="Απαιτείται ασφαλής σύνδεση">● Ενεργοποίηση</button><button type="button" id="pumpOff" disabled title="Απαιτείται ασφαλής σύνδεση">○ Απενεργοποίηση</button></div>
   <p class="pump-msg" id="pumpMessage" role="status" hidden></p>
-</article><article class="relay-unit"><h3>Ηλεκτρομαγνητική βάνα</h3><span class="pump-tag" id="valveConnection">Αναμονή σύνδεσης</span>  <div class="pump-state"><span class="pump-state-symbol" aria-hidden="true">⏻</span><div><div class="pump-state-name" id="valveState">Κατάσταση μη διαθέσιμη</div><div class="pump-state-note">Κατάσταση ρελέ ESP32-C6 · GPIO13</div></div></div>
+</article><article class="relay-unit"><h3>Ηλεκτρομαγνητική βάνα</h3><span class="pump-tag" id="valveConnection">Αναμονή σύνδεσης</span>  <div class="pump-state"><span class="pump-state-symbol" aria-hidden="true">⏻</span><div><div class="pump-state-name" id="valveState">Κατάσταση μη διαθέσιμη</div><div class="pump-state-note">Κατάσταση ρελέ ESP32-C6 · GPIO19</div></div></div>
   <div class="pump-actions"><button type="button" id="valveOn" disabled title="Απαιτείται ασφαλής σύνδεση">● Ενεργοποίηση</button><button type="button" id="valveOff" disabled title="Απαιτείται ασφαλής σύνδεση">○ Απενεργοποίηση</button></div>
   <p class="pump-msg" id="valveMessage" role="status" hidden></p>
 </article></div>
 </section>
+<section class="card pump-card" aria-labelledby="flowHeading">
+  <div class="pump-head"><h2 id="flowHeading">💧 Μετρητής ροής νερού</h2><span class="pump-tag" id="flowConnection">Απαιτείται σύνδεση</span></div>
+  <div class="pump-state" role="status"><div id="flowState" class="pump-state-name pump-unknown">Αναμονή δεδομένων</div></div>
+  <div class="metrics">
+    <div class="metric"><div class="label">Τρέχουσα παροχή</div><div class="value" id="flowRate">-- L/min</div></div>
+    <div class="metric"><div class="label">Τρέχον / τελευταίο πότισμα</div><div class="value" id="flowSession">-- L</div></div>
+    <div class="metric"><div class="label">Σύνολο από εκκίνηση ESP32</div><div class="value" id="flowTotal">-- L</div></div>
+    <div class="metric"><div class="label">Παλμοί ανά λίτρο</div><div class="value" id="flowCalibration">--</div></div>
+  </div>
+  <p class="small" id="flowDetail">Εκτιμώμενες μετρήσεις · ανεξάρτητες από τα ρελέ</p>
+</section>
 <section class="card metrics-card"><article class="card"><h2>◉ Τρέχουσες μετρήσεις</h2><div class="metrics"><div class="metric"><div class="label">🌡️ Θερμοκρασία</div><div class="value" id="temp">-- °C</div></div><div class="metric"><div class="label">📏 Απόσταση</div><div class="value" id="distance">-- cm</div></div><div class="metric"><div class="label">📶 Σήμα Wi-Fi</div><div class="value" id="rssi">-- dBm</div></div><div class="metric"><div class="label">💧 Νερό</div><div class="value" id="liters">-- L</div></div></div><p class="small" style="margin-top:18px">Τελευταία μέτρηση: <strong id="updated">—</strong></p><button id="refresh" type="button">↻ Ανανέωση τώρα</button><div id="error" class="error" role="status"></div></article></section>
 
 
-<div class="hero-note"><span>✦</span><span><strong>SMART IoT · Κανόνας V25</strong><br>
+<div class="hero-note"><span>✦</span><span><strong>SMART IoT · Κανόνας V19</strong><br>
 <span>🟢 95–100% &amp; σταθερή για 2′ → αποστολή κάθε 30′</span><br>
 <span>🔵 &lt;95% ή επιβεβαιωμένη μεταβολή → κάθε 30″</span><br>
 <span>☀️ Ο ηλιακός ακολουθεί τη δεξαμενή · Η σελίδα ελέγχει για νέα δεδομένα κάθε 30″</span></span></div>
 <section class="card chart-card"><div class="chart-head"><h2>📈 Ιστορικό μετρήσεων</h2><label class="small">Γράφημα: <select id="field"><option value="field1">Στάθμη (%)</option><option value="field2">Λίτρα (L)</option><option value="field4">Θερμοκρασία (°C)</option><option value="field3">Απόσταση (cm)</option><option value="field5">Wi-Fi (dBm)</option></select></label><label class="small">Μετρήσεις: <select id="count"><option value="100">100</option><option value="300">300</option><option value="500">500</option><option value="1000">1.000</option></select></label></div><div class="chart-wrap"><canvas id="chart" aria-label="Γράφημα ιστορικού" role="img"></canvas></div><div class="small" id="chartInfo">Φόρτωση ιστορικού...</div></section>
-<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V25</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
+<footer class="foot"><span>© MASSARAS IoT · Smart Dashboard V26 (dual relay + flow) · Powered by ThingSpeak</span><span>Ανανέωση κάθε 30 δευτερόλεπτα · Δημόσια δεδομένα</span></footer>
 </main><script>
 'use strict';
 const CHANNEL_ID='3568951';const apiUrl=()=>`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=${$('count').value}`;
@@ -213,4 +224,26 @@ async function sendValveCommand(on){
  finally{valveSending=false;valveButtons();}
 }
 el('valveOn').onclick=()=>sendValveCommand(true);el('valveOff').onclick=()=>sendValveCommand(false);
+
+let flowUnsubscribe=null, flowStatus=null, flowError=false;
+function renderFlow(){
+ const v=flowStatus;
+ const age=v && typeof v.updatedAt==='number' ? Date.now()-v.updatedAt : Infinity;
+ const fresh=!!v && typeof v.active==='boolean' && Number.isFinite(age) && age>=-10000 && age<=(v.active?20000:90000) && !flowError;
+ el('flowState').textContent=fresh?(v.active?'Ανιχνεύθηκε ροή νερού':'Χωρίς ροή νερού'):'Χωρίς πρόσφατη επιβεβαίωση ροής';
+ el('flowState').className='pump-state-name '+(fresh&&v.active?'pump-on':'pump-unknown');
+ el('flowConnection').textContent=!auth.currentUser?'Απαιτείται σύνδεση':flowError?'Σφάλμα ανάγνωσης Firebase':fresh?'Αναφορά ESP32':'Αναμονή πρόσφατης αναφοράς';
+ const format=(x,d)=>Number.isFinite(x)?x.toLocaleString('el-GR',{maximumFractionDigits:d}):'--';
+ el('flowRate').textContent=format(fresh?v.litersPerMinute:null,2)+' L/min';
+ el('flowSession').textContent=format(v?.sessionLiters,2)+' L';
+ el('flowTotal').textContent=format(v?.totalLiters,2)+' L';
+ el('flowCalibration').textContent=format(v?.pulsesPerLiter,2);
+ el('flowDetail').textContent=(v&&!fresh?'Τελευταίες γνωστές τιμές · ':'')+'Εκτιμώμενες μετρήσεις · ανεξάρτητες από τα ρελέ';
+}
+onAuthStateChanged(auth,user=>{
+ if(flowUnsubscribe) flowUnsubscribe();
+ flowUnsubscribe=null; flowStatus=null; flowError=false; renderFlow();
+ if(user) flowUnsubscribe=onValue(ref(db,'flow/status'),snap=>{flowStatus=snap.val();flowError=false;renderFlow();},()=>{flowStatus=null;flowError=true;renderFlow();});
+});
+setInterval(renderFlow,1000);
 </script></body></html>
